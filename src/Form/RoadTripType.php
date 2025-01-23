@@ -27,17 +27,20 @@ class RoadTripType extends AbstractType
                 'required' => false,
             ])
             ->add('coverImage', FileType::class, [
-                'label' => 'Photo',
-                'mapped' => false, // Ce champ n'est pas directement mappé à l'entité
+                'label' => 'Cover Image',
+                'mapped' => false,
                 'required' => false,
                 'constraints' => [
                     new File([
                         'maxSize' => '2M',
-                        'mimeTypes' => ['image/jpeg', 'image/png'],
-                        'mimeTypesMessage' => 'Please upload a valid image (JPEG or PNG)',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/webp',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid image (JPEG/PNG)',
                     ]),
                 ],
-                'attr' => ['class' => 'form-control'],
             ])
             ->add('visibility', ChoiceType::class, [
                 'label' => 'Visibility',

@@ -1,0 +1,79 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Public Profile - {{ profileUser.username }}{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body d-flex align-items-center">
+                <i class="fas fa-user-circle fa-5x text-secondary me-3"></i>
+                <div>
+                    <h4 class="mb-1">Profile of {{ profileUser.username }}</h4>
+                    <p class="text-muted">Discover their public trips</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Voyages publics -->
+        <div class="row g-4">
+            {% for trip in publicRoadTrips %}
+                <div class="col-md-3">
+                    <div class="card shadow-sm position-relative" data-bs-toggle="modal" data-bs-target="#tripDetailsModal-{{ trip.id }}" style="cursor: pointer;">
+                        <!-- Image du voyage ou image par défaut -->
+                        {% if trip.coverImage %}
+                            <div class="card-img-top" style="background-image: url('{{ asset('uploads/roadtrips/' ~ trip.coverImage) }}'); background-size: cover; background-position: center; height: 180px;">
+                            </div>
+                        {% else %}
+                            <div class="card-img-top" style="background-image: url('{{ asset('img/placeholder_image.png') }}'); background-size: cover; background-position: center; height: 180px;">
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ trip.title }}</h5>
+                            <p class="card-text text-muted">{{ trip.description }}</p>
+                            <p><strong>Checkpoints :</strong> {{ trip.checkpoints|length }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-muted text-center">This user has no public trips.</p>
+            {% endfor %}
+        </div>
+
+        <!-- Modals pour les détails des voyages -->
+        {% for trip in publicRoadTrips %}
+            <div class="modal fade" id="tripDetailsModal-{{ trip.id }}" tabindex="-1" aria-labelledby="tripDetailsModalLabel-{{ trip.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="tripDetailsModalLabel-{{ trip.id }}">{{ trip.title }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            {% if trip.coverImage %}
+                                <img src="{{ asset('uploads/roadtrips/' ~ trip.coverImage) }}" alt="{{ trip.title }}" class="img-fluid mb-3">
+                            {% else %}
+                                <img src="{{ asset('img/placeholder_image.png') }}" alt="Placeholder" class="img-fluid mb-3">
+                            {% endif %}
+
+                            <p>{{ trip.description }}</p>
+
+                            <h6>Checkpoints :</h6>
+                            <ul>
+                                {% for checkpoint in trip.checkpoints %}
+                                    <li>
+                                        <strong>{{ checkpoint.name }}</strong><br>
+                                    </li>
+                                {% else %}
+                                    <li>Aucun checkpoint pour ce trip.</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

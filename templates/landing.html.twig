@@ -2,6 +2,10 @@
 
 {% block title %}Waw.travel{% endblock %}
 
+{% block javascripts %}
+    <script src="{{ asset('js/search.js') }}" defer></script>
+{% endblock %}
+
 {% block body %}
     <div class="landing-page">
 
@@ -11,8 +15,8 @@
                 <h1 class="display-4 fw-bold mb-4">Share Your Trip And Adventure With Friends</h1>
                 <div class="search-bar mb-4">
                     <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Search..." aria-label="Search" />
-                        <button class="btn btn-primary" type="button">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search..." aria-label="Search" />
+                        <button id="searchButton" class="btn btn-primary" type="button">
                             <i class="fas fa-search"></i>
                         </button>
                     </div>

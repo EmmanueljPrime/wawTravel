@@ -12,7 +12,7 @@ final class MainController extends AbstractController
     public function index(): Response
     {
         if ($this->getUser()) {
-            return $this->redirectToRoute('app_profile_index');
+            return $this->redirectToRoute('app_profile');
         }
 
         return $this->render('landing.html.twig');

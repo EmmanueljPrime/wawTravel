@@ -31,17 +31,15 @@
                 <div class="row g-4">
                     {% for trip in public_road_trips %}
                         <div class="col-md-3">
-                            <div class="card shadow-sm position-relative">
+                            <div class="card shadow-sm position-relative" data-bs-toggle="modal" data-bs-target="#tripDetailsModal-{{ trip.id }}" style="cursor: pointer;">
                                 <!-- Image du voyage ou image par défaut -->
-                                <div class="card-img-top" style="background-image: url('{{ trip.coverImage ?: asset("img/placeholder_image.png") }}'); background-size: cover; background-position: center; height: 180px;">
+                                <div class="card-img-top" style="background-image: url('{% if trip.coverImage %}{{ asset('uploads/roadtrips/' ~ trip.coverImage) }}{% else %}{{ asset('img/placeholder_image.png') }}{% endif %}'); background-size: cover; background-position: center; height: 180px;">
                                 </div>
                                 <div class="card-body">
-                                    <h5 class="card-title">{{ trip.title }}</h5>
-                                    <p class="card-text text-muted">{{ trip.description }}</p>
-                                    <p><strong>Nombre de checkpoints :</strong> {{ trip.checkpoints|length }}</p>
-                                    <div class="d-flex justify-content-end mt-3">
+                                    <h6 class="card-title">{{ trip.title }}</h6>
+{#                                    <div class="d-flex justify-content-end mt-3">#}
 {#                                        <a href="{{ path('app_trip_view', { id: trip.id }) }}" class="btn btn-primary">Voir les détails</a>#}
-                                    </div>
+{#                                    </div>#}
                                 </div>
                             </div>
                         </div>
@@ -74,15 +72,13 @@
                                 </form>
 
                                 <!-- Image du voyage ou image par défaut -->
-                                <div class="card-img-top" style="background-image: url('{{ road_trip.coverImage ?: asset("img/placeholder_image.png") }}'); background-size: cover; background-position: center; height: 180px;">
+                                <div class="card-img-top" style="background-image: url('{% if road_trip.coverImage %}{{ asset('uploads/roadtrips/' ~ road_trip.coverImage) }}{% else %}{{ asset('img/placeholder_image.png') }}{% endif %}'); background-size: cover; background-position: center; height: 180px;">
                                 </div>
                                 <div class="card-body">
                                     <h5 class="card-title">{{ road_trip.title }}</h5>
-                                    <p class="card-text text-muted">{{ road_trip.description }}</p>
-                                    <p><strong>Visibility:</strong> {{ road_trip.visibility }}</p>
                                     <div class="d-flex justify-content-between mt-3">
-                                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editTripModal-{{ road_trip.id }}">Edit Trip</button>
-                                        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#manageCheckpointsModal-{{ road_trip.id }}">Manage Checkpoints</button>
+                                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editTripModal-{{ road_trip.id }}">Edit Trip</button>
+                                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#manageCheckpointsModal-{{ road_trip.id }}">Manage Checkpoints</button>
                                     </div>
                                 </div>
                             </div>
@@ -257,6 +253,45 @@
                             <button type="submit" class="btn btn-primary me-2">Save</button>
                         </div>
                         {{ form_end(create_checkpoint_forms[road_trip.id]) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    {% for trip in public_road_trips %}
+        <!-- Modal pour afficher les détails -->
+        <div class="modal fade" id="tripDetailsModal-{{ trip.id }}" tabindex="-1" aria-labelledby="tripDetailsModalLabel-{{ trip.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="tripDetailsModalLabel-{{ trip.id }}">{{ trip.title }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Image de couverture -->
+                        {% if trip.coverImage %}
+                            <img src="{{ asset('uploads/roadtrips/' ~ trip.coverImage) }}" alt="{{ trip.title }}" class="img-fluid mb-3">
+                        {% else %}
+                            <img src="{{ asset('img/placeholder_image.png') }}" alt="Placeholder" class="img-fluid mb-3">
+                        {% endif %}
+
+                        <!-- Description -->
+                        <p>{{ trip.description }}</p>
+
+                        <!-- Checkpoints -->
+                        <h6>Checkpoints :</h6>
+                        <ul>
+                            {% for checkpoint in trip.checkpoints %}
+                                <li>
+                                    <strong>{{ checkpoint.name }}</strong>
+                                </li>
+                            {% else %}
+                                <li>Aucun checkpoint pour ce trip.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
                     </div>
                 </div>
             </div>

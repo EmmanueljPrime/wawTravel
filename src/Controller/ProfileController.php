@@ -7,6 +7,7 @@ use App\Entity\Checkpoint;
 use App\Form\RoadTripType;
 use App\Form\CheckpointType;
 use App\Repository\RoadTripRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +25,7 @@ class ProfileController extends AbstractController
 
         $user = $this->getUser();
 
-        $publicRoadTrips = $roadTripRepository->findBy(['visibility' => 'public']);
+        $publicRoadTrips = $roadTripRepository->findBy(['visibility' => 'public','owner' => $user]);
 
         $roadTrips = $roadTripRepository->findBy(['owner' => $user]);
 
@@ -70,4 +71,32 @@ class ProfileController extends AbstractController
             'edit_checkpoint_forms' => $editCheckpointForms,
         ]);
     }
+
+    #[Route('/search/{username}', name: 'app_public_profile', methods: ['GET'])]
+    public function publicProfile(
+        string $username,
+        UserRepository $userRepository,
+        RoadTripRepository $roadTripRepository
+    ): Response {
+        // Trouver l'utilisateur correspondant au username
+        $user = $userRepository->findOneBy(['username' => $username]);
+
+        // Si l'utilisateur n'existe pas, retourner une 404
+        if (!$user) {
+            throw $this->createNotFoundException("The user '{$username}' does not exist.");
+        }
+
+        // Récupérer les voyages publics de cet utilisateur
+        $publicRoadTrips = $roadTripRepository->findBy([
+            'owner' => $user,
+            'visibility' => 'public',
+        ]);
+
+        // Rendre la vue pour afficher les voyages publics
+        return $this->render('profile/public.html.twig', [
+            'profileUser' => $user,
+            'publicRoadTrips' => $publicRoadTrips,
+        ]);
+    }
+
 }
