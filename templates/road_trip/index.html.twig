@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My RoadTrips{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4">My RoadTrips</h1>
+
+        <a href="{{ path('app_road_trip_new') }}" class="btn btn-primary mb-3">Create New RoadTrip</a>
+
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for road_trip in road_trips %}
+                <tr>
+                    <td>{{ road_trip.title }}</td>
+                    <td>{{ road_trip.description }}</td>
+                    <td>
+                        <a href="{{ path('app_road_trip_show', { id: road_trip.id }) }}" class="btn btn-info btn-sm">View</a>
+                        <a href="{{ path('app_road_trip_edit', { id: road_trip.id }) }}" class="btn btn-warning btn-sm">Edit</a>
+                        <form method="post" action="{{ path('app_road_trip_delete', { id: road_trip.id }) }}" style="display: inline-block;">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ road_trip.id) }}">
+                            <button class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5">No road trips found.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

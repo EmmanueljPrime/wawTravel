@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}RoadTrip Details{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1>{{ road_trip.title }}</h1>
+        <p>{{ road_trip.description }}</p>
+        <p><strong>Start Date:</strong> {{ road_trip.startDate|date('Y-m-d') }}</p>
+        <p><strong>End Date:</strong> {{ road_trip.endDate|date('Y-m-d') }}</p>
+
+        <h2 class="mt-4">Checkpoints</h2>
+        <ul>
+            {% for checkpoint in road_trip.checkpoints %}
+                <li>
+                    <strong>{{ checkpoint.name }}</strong> ({{ checkpoint.latitude }}, {{ checkpoint.longitude }})<br>
+                    Arrival: {{ checkpoint.arrivalDate|date('Y-m-d H:i') }}<br>
+                    Departure: {{ checkpoint.departureDate|date('Y-m-d H:i') }}
+                </li>
+            {% else %}
+                <li>No checkpoints available.</li>
+            {% endfor %}
+        </ul>
+
+        <a href="{{ path('app_road_trip_edit', { id: road_trip.id }) }}" class="btn btn-warning mt-3">Edit</a>
+        <a href="{{ path('app_road_trip_index') }}" class="btn btn-secondary mt-3">Back to List</a>
+    </div>
+{% endblock %}

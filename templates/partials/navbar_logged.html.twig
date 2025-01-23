@@ -1,0 +1,40 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <!-- Logo à gauche -->
+        <a class="navbar-brand" href="{{ path('app_landing') }}">
+            <img src="{{ asset('img/logo/waw_travel_logo.svg') }}" alt="Waw.travel Logo" width="100" />
+        </a>
+
+        <!-- Toggle button pour mobile -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
+            <!-- Barre de recherche -->
+            <form class="d-flex me-3">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-secondary" type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+
+            <!-- Menu utilisateur -->
+            <div class="dropdown">
+                <a href="#" class="d-flex align-items-center link-dark text-decoration-none" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+{#                    {% if app.user and app.user.profilePicture %}#}
+{#                        <img src="{{ app.user.profilePicture }}" alt="User" class="rounded-circle me-2" width="40" height="40">#}
+{#                    {% else %}#}
+                        <i class="fas fa-user-circle fa-2x text-secondary"></i>
+{#                    {% endif %}#}
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end text-small" aria-labelledby="dropdownUser">
+                    <li><a class="dropdown-item" href="#">Profile</a></li>
+                    <li><a class="dropdown-item" href="#">Settings</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ path('app_logout') }}">Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>

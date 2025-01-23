@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Waw.travel{% endblock %}
+
+{% block body %}
+    <div class="landing-page">
+
+        <!-- Hero Section -->
+        <div class="container-fluid hero-section text-center text-white d-flex align-items-center justify-content-center" style="background-image: url('{{ asset('img/mountain_landing.webp') }}'); background-size: cover; background-position: center; height: 100vh;">
+            <div class="hero-content">
+                <h1 class="display-4 fw-bold mb-4">Share Your Trip And Adventure With Friends</h1>
+                <div class="search-bar mb-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search..." aria-label="Search" />
+                        <button class="btn btn-primary" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <a href="/signup" class="btn btn-primary btn-lg">Sign Up</a>
+            </div>
+        </div>
+
+        <!-- Social Links -->
+        <div class="container-fluid social-links text-center py-3">
+            <a href="#" class="mx-3"><i class="fab fa-facebook fs-4"></i></a>
+            <a href="#" class="mx-3"><i class="fab fa-instagram fs-4"></i></a>
+            <a href="#" class="mx-3"><i class="fa-brands fa-x-twitter fs-4"></i></a>
+            <a href="#" class="mx-3"><i class="fab fa-youtube fs-4"></i></a>
+        </div>
+
+    </div>
+{% endblock %}
