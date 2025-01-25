@@ -74,6 +74,10 @@ final class RoadTripController extends AbstractController
             $entityManager->persist($roadTrip);
             $entityManager->flush();
 
+            if ($request->attributes->get('_controller') === 'App\Controller\ProfileController::profile') {
+                return new Response('', Response::HTTP_OK);
+            }
+
             return $this->redirectToRoute('app_profile', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -148,6 +152,15 @@ final class RoadTripController extends AbstractController
         }
 
         if ($this->isCsrfTokenValid('delete' . $roadTrip->getId(), $request->request->get('_token'))) {
+
+            foreach ($roadTrip->getImages() as $image) {
+                $filePath = $this->getParameter('uploads_directory') . '/' . $image->getPath();
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+                $entityManager->remove($image);
+            }
+
             $entityManager->remove($roadTrip);
             $entityManager->flush();
         }

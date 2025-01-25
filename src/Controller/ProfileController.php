@@ -22,14 +22,13 @@ class ProfileController extends AbstractController
     public function profile(
         Request                $request,
         RoadTripRepository     $roadTripRepository,
-        EntityManagerInterface $entityManager,
-        SluggerInterface $slugger
+        SluggerInterface       $slugger,
+        EntityManagerInterface   $entityManager
     ): Response {
 
         $user = $this->getUser();
 
         $publicRoadTrips = $roadTripRepository->findBy(['visibility' => 'public','owner' => $user]);
-
         $roadTrips = $roadTripRepository->findBy(['owner' => $user]);
 
         // Nouveau road trip
