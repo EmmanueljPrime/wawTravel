@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Image;
 use App\Entity\RoadTrip;
 use App\Entity\Checkpoint;
 use App\Form\RoadTripType;
@@ -13,14 +14,16 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 class ProfileController extends AbstractController
 {
     #[Route('/profile', name: 'app_profile', methods: ['GET', 'POST'])]
     public function profile(
-        Request $request,
-        RoadTripRepository $roadTripRepository,
-        EntityManagerInterface $entityManager
+        Request                $request,
+        RoadTripRepository     $roadTripRepository,
+        EntityManagerInterface $entityManager,
+        SluggerInterface $slugger
     ): Response {
 
         $user = $this->getUser();
@@ -36,8 +39,39 @@ class ProfileController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($newRoadTrip);
+            $roadTrip = $form->getData();
+
+            // Gestion des images
+            $images = $form->get('images')->getData(); // Récupère les fichiers soumis via le formulaire
+
+            if ($images) {
+                foreach ($images as $imageFile) {
+                    // Générer un nom de fichier unique
+                    $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                    $safeFilename = $slugger->slug($originalFilename);
+                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
+
+                    // Déplacer le fichier dans le répertoire des uploads
+                    $imageFile->move(
+                        $this->getParameter('uploads_directory') . '/roadtrips',
+                        $newFilename
+                    );
+
+                    // Créer une entité Image
+                    $image = new Image();
+                    $image->setPath('uploads/roadtrips/' . $newFilename);
+                    $image->setType('roadtrip');
+                    $image->setRoadTrip($roadTrip); // Associe l'image au RoadTrip
+
+                    // Persister l'image
+                    $entityManager->persist($image);
+                }
+            }
+
+            // Sauvegarder le RoadTrip et les images associées
+            $entityManager->persist($roadTrip);
             $entityManager->flush();
+
             return $this->redirectToRoute('app_profile');
         }
 

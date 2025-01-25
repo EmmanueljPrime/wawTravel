@@ -33,13 +33,15 @@
                         <div class="col-md-3">
                             <div class="card shadow-sm position-relative" data-bs-toggle="modal" data-bs-target="#tripDetailsModal-{{ trip.id }}" style="cursor: pointer;">
                                 <!-- Image du voyage ou image par défaut -->
-                                <div class="card-img-top" style="background-image: url('{% if trip.coverImage %}{{ asset('uploads/roadtrips/' ~ trip.coverImage) }}{% else %}{{ asset('img/placeholder_image.png') }}{% endif %}'); background-size: cover; background-position: center; height: 180px;">
+                                <div class="card-img-top" style="height: 180px; overflow: hidden;">
+                                    {% if trip.images|length > 0 %}
+                                        <img src="{{ asset('uploads/roadtrips/' ~ trip.images[0].path) }}" alt="{{ trip.title }}" class="img-fluid" style="object-fit: cover; width: 100%; height: 100%;">
+                                    {% else %}
+                                        <img src="{{ asset('img/placeholder_image.png') }}" alt="Placeholder" class="img-fluid" style="object-fit: cover; width: 100%; height: 100%;">
+                                    {% endif %}
                                 </div>
                                 <div class="card-body">
                                     <h6 class="card-title">{{ trip.title }}</h6>
-{#                                    <div class="d-flex justify-content-end mt-3">#}
-{#                                        <a href="{{ path('app_trip_view', { id: trip.id }) }}" class="btn btn-primary">Voir les détails</a>#}
-{#                                    </div>#}
                                 </div>
                             </div>
                         </div>
@@ -72,7 +74,12 @@
                                 </form>
 
                                 <!-- Image du voyage ou image par défaut -->
-                                <div class="card-img-top" style="background-image: url('{% if road_trip.coverImage %}{{ asset('uploads/roadtrips/' ~ road_trip.coverImage) }}{% else %}{{ asset('img/placeholder_image.png') }}{% endif %}'); background-size: cover; background-position: center; height: 180px;">
+                                <div class="card-img-top" style="height: 180px; overflow: hidden;">
+                                    {% if road_trip.images|length > 0 %}
+                                        <img src="{{ asset(road_trip.images[0].path) }}" alt="{{ road_trip.title }}" class="img-fluid" style="object-fit: cover; width: 100%; height: 100%;">
+                                    {% else %}
+                                        <img src="{{ asset('img/placeholder_image.png') }}" alt="Placeholder" class="img-fluid" style="object-fit: cover; width: 100%; height: 100%;">
+                                    {% endif %}
                                 </div>
                                 <div class="card-body">
                                     <h5 class="card-title">{{ road_trip.title }}</h5>
@@ -98,9 +105,9 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    {{ form_start(form, { 'attr': { 'id': 'add-trip-form' } }) }}
+                    {{ form_start(form,{'attr': { 'id': 'add-trip-form', 'enctype': 'multipart/form-data' } }) }}
                     <div class="mb-3">
-                        {{ form_label(form.title, 'Name of the collection', { 'label_attr': { 'class': 'form-label fw-bold' } }) }}
+                        {{ form_label(form.title, 'Title', { 'label_attr': { 'class': 'form-label fw-bold' } }) }}
                         {{ form_widget(form.title, { 'attr': { 'class': 'form-control' } }) }}
                     </div>
                     <div class="mb-3">
@@ -108,8 +115,9 @@
                         {{ form_widget(form.description, { 'attr': { 'class': 'form-control' } }) }}
                     </div>
                     <div class="mb-3">
-                        {{ form_label(form.coverImage, 'Photo', { 'label_attr': { 'class': 'form-label fw-bold' } }) }}
-                        {{ form_widget(form.coverImage, { 'attr': { 'class': 'form-control' } }) }}
+                        {{ form_label(form.images, 'Upload Images', { 'label_attr': { 'class': 'form-label fw-bold' } }) }}
+                        {{ form_widget(form.images, { 'attr': { 'class': 'form-control', 'multiple': 'multiple' } }) }}
+                        <small class="text-muted">You can upload multiple images (JPEG, PNG, WEBP).</small>
                     </div>
                     <div class="mb-3">
                         {{ form_label(form.visibility, 'Visibility', { 'label_attr': { 'class': 'form-label fw-bold' } }) }}
@@ -127,7 +135,6 @@
 
     <!-- Modals pour chaque voyage -->
     {% for road_trip in road_trips %}
-        <!-- Modal pour éditer un voyage -->
         <div class="modal fade" id="editTripModal-{{ road_trip.id }}" tabindex="-1" aria-labelledby="editTripModalLabel-{{ road_trip.id }}" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
@@ -136,12 +143,9 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        {{ form_start(edit_forms[road_trip.id], {
-                            'attr': { 'id': 'edit-trip-form-' ~ road_trip.id },
-                            'action': path('app_road_trip_edit', { 'id': road_trip.id }),
-                        }) }}
+                        {{ form_start(edit_forms[road_trip.id], { 'attr': { 'id': 'edit-trip-form-' ~ road_trip.id } }) }}
                         <div class="mb-3">
-                            {{ form_label(edit_forms[road_trip.id].title, 'Name of the collection', { 'label_attr': { 'class': 'form-label fw-bold' } }) }}
+                            {{ form_label(edit_forms[road_trip.id].title, 'Title', { 'label_attr': { 'class': 'form-label fw-bold' } }) }}
                             {{ form_widget(edit_forms[road_trip.id].title, { 'attr': { 'class': 'form-control' } }) }}
                         </div>
                         <div class="mb-3">
@@ -149,8 +153,33 @@
                             {{ form_widget(edit_forms[road_trip.id].description, { 'attr': { 'class': 'form-control' } }) }}
                         </div>
                         <div class="mb-3">
-                            {{ form_label(edit_forms[road_trip.id].coverImage, 'Photo', { 'label_attr': { 'class': 'form-label fw-bold' } }) }}
-                            {{ form_widget(edit_forms[road_trip.id].coverImage, { 'attr': { 'class': 'form-control' } }) }}
+                            <label class="form-label fw-bold">Current Images</label>
+                            {% if road_trip.images|length > 0 %}
+                                <div id="carouselEditImages-{{ road_trip.id }}" class="carousel slide mb-3" data-bs-ride="carousel">
+                                    <div class="carousel-inner">
+                                        {% for image in road_trip.images %}
+                                            <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                                <img src="{{ asset(image.path) }}" class="d-block w-100" alt="Image {{ loop.index }}">
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselEditImages-{{ road_trip.id }}" data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Previous</span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button" data-bs-target="#carouselEditImages-{{ road_trip.id }}" data-bs-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Next</span>
+                                    </button>
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No images available for this trip.</p>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            {{ form_label(edit_forms[road_trip.id].images, 'Upload New Images', { 'label_attr': { 'class': 'form-label fw-bold' } }) }}
+                            {{ form_widget(edit_forms[road_trip.id].images, { 'attr': { 'class': 'form-control', 'multiple': 'multiple' } }) }}
+                            <small class="text-muted">You can upload additional images (JPEG, PNG, WEBP).</small>
                         </div>
                         <div class="mb-3">
                             {{ form_label(edit_forms[road_trip.id].visibility, 'Visibility', { 'label_attr': { 'class': 'form-label fw-bold' } }) }}
@@ -158,6 +187,7 @@
                         </div>
                         <div class="d-flex justify-content-end mt-3">
                             <button type="submit" class="btn btn-primary me-2">Save</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         </div>
                         {{ form_end(edit_forms[road_trip.id]) }}
                     </div>
@@ -169,47 +199,70 @@
         <div class="modal fade" id="manageCheckpointsModal-{{ road_trip.id }}" tabindex="-1" aria-labelledby="manageCheckpointsModalLabel-{{ road_trip.id }}" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
+                    <!-- Header de la modal -->
                     <div class="modal-header">
                         <h5 class="modal-title" id="manageCheckpointsModalLabel-{{ road_trip.id }}">Manage Checkpoints for {{ road_trip.title }}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
+
+                    <!-- Corps de la modal -->
                     <div class="modal-body">
                         <!-- Liste des checkpoints existants -->
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="card-title">PBT Trip</h4>
-                                <p class="card-text text-muted">Team of the Voyagio created this list of attractions that we are planning to visit after our capstone project</p>
-                                <div class="row g-3">
-                                    {% for checkpoint in road_trip.checkpoints %}
-                                        <div class="col-md-12">
-                                            <div class="card shadow-sm">
-                                                <div class="d-flex align-items-center">
-                                                    <img src="{{ asset('img/placeholder_image.png') }}" alt="Checkpoint Image" class="img-fluid" style="width: 80px; height: 80px; object-fit: cover;">
-                                                    <div class="ms-3">
-                                                        <h5 class="mb-1">{{ checkpoint.name }}</h5>
-                                                        <p class="text-muted small mb-0">{{ checkpoint.latitude }}, {{ checkpoint.longitude }}</p>
-                                                        <p class="text-muted small mb-0">Arrival: {{ checkpoint.arrivalDate|date('Y-m-d H:i') }}</p>
+                        <div class="row g-4">
+                            {% for checkpoint in road_trip.checkpoints %}
+                                <div class="card shadow-sm mb-3 p-0 position-relative" data-bs-toggle="modal" data-bs-target="#editCheckpointModal-{{ checkpoint.id }}">
+                                    <div class="d-flex align-items-center">
+                                        <!-- Images multiples en carrousel -->
+                                        <div class="col-4" style="overflow: hidden; border-radius: 8px 0 0 8px;">
+                                            {% if checkpoint.images|length > 0 %}
+                                                <div id="carouselCheckpointImages-{{ checkpoint.id }}" class="carousel slide" data-bs-ride="carousel">
+                                                    <div class="carousel-inner">
+                                                        {% for image in checkpoint.images %}
+                                                            <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                                                <img src="{{ asset('uploads/checkpoints/' ~ image.path) }}" class="d-block w-100" alt="Checkpoint Image {{ loop.index }}">
+                                                            </div>
+                                                        {% endfor %}
                                                     </div>
-                                                    <!-- Bouton pour supprimer un checkpoint -->
-                                                    <form action="{{ path('app_checkpoint_delete', { 'id': checkpoint.id }) }}" method="post" class="ms-auto">
-                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ checkpoint.id) }}">
-                                                        <button type="submit" class="btn btn-link p-0 text-danger" title="Delete Checkpoint" onclick="return confirm('Are you sure you want to delete this checkpoint?');">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
-                                                    </form>
+                                                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselCheckpointImages-{{ checkpoint.id }}" data-bs-slide="prev">
+                                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                        <span class="visually-hidden">Previous</span>
+                                                    </button>
+                                                    <button class="carousel-control-next" type="button" data-bs-target="#carouselCheckpointImages-{{ checkpoint.id }}" data-bs-slide="next">
+                                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                        <span class="visually-hidden">Next</span>
+                                                    </button>
                                                 </div>
-                                            </div>
+                                            {% else %}
+                                                <img src="{{ asset('img/placeholder_image.png') }}" alt="No Image" class="img-fluid">
+                                            {% endif %}
                                         </div>
-                                    {% else %}
-                                        <p class="text-muted text-center">No checkpoints yet. Add one using the button below.</p>
-                                    {% endfor %}
+
+                                        <!-- Informations du checkpoint -->
+                                        <div class="col-8 p-4">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <h5 class="card-title">{{ checkpoint.name }}</h5>
+                                                <!-- Bouton pour supprimer -->
+                                                <form action="{{ path('app_checkpoint_delete', { id: checkpoint.id }) }}" method="post">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ checkpoint.id) }}">
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this checkpoint?');">
+                                                        Delete
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            <p class="card-text text-muted">{{ checkpoint.latitude }}, {{ checkpoint.longitude }}</p>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            {% else %}
+                                <p class="text-muted text-center">No checkpoints available.</p>
+                            {% endfor %}
                         </div>
 
                         <!-- Bouton pour ajouter un checkpoint -->
                         <div class="text-center mt-4">
-                            <button class="btn btn-primary rounded-circle" data-bs-toggle="modal" data-bs-target="#createCheckpointModal-{{ road_trip.id }}" style="width: 50px; height: 50px; font-size: 24px;">+</button>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCheckpointModal-{{ road_trip.id }}">
+                                Add Checkpoint
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -221,14 +274,11 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="createCheckpointModalLabel-{{ road_trip.id }}">Create Checkpoint for {{ road_trip.title }}</h5>
+                        <h5 class="modal-title" id="createCheckpointModalLabel-{{ road_trip.id }}">Add Checkpoint</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        {{ form_start(create_checkpoint_forms[road_trip.id], {
-                            'attr': { 'id': 'create-checkpoint-form-' ~ road_trip.id },
-                            'action': path('app_checkpoint_new', { 'roadTripId': road_trip.id }),
-                        }) }}
+                        {{ form_start(create_checkpoint_forms[road_trip.id], { 'attr': { 'id': 'create-checkpoint-form-' ~ road_trip.id } }) }}
                         <div class="mb-3">
                             {{ form_label(create_checkpoint_forms[road_trip.id].name, 'Name', { 'label_attr': { 'class': 'form-label fw-bold' } }) }}
                             {{ form_widget(create_checkpoint_forms[road_trip.id].name, { 'attr': { 'class': 'form-control' } }) }}
@@ -242,21 +292,80 @@
                             {{ form_widget(create_checkpoint_forms[road_trip.id].longitude, { 'attr': { 'class': 'form-control' } }) }}
                         </div>
                         <div class="mb-3">
-                            {{ form_label(create_checkpoint_forms[road_trip.id].arrivalDate, 'Arrival Date', { 'label_attr': { 'class': 'form-label fw-bold' } }) }}
-                            {{ form_widget(create_checkpoint_forms[road_trip.id].arrivalDate, { 'attr': { 'class': 'form-control' } }) }}
-                        </div>
-                        <div class="mb-3">
-                            {{ form_label(create_checkpoint_forms[road_trip.id].departureDate, 'Departure Date', { 'label_attr': { 'class': 'form-label fw-bold' } }) }}
-                            {{ form_widget(create_checkpoint_forms[road_trip.id].departureDate, { 'attr': { 'class': 'form-control' } }) }}
+                            {{ form_label(create_checkpoint_forms[road_trip.id].images, 'Upload Images', { 'label_attr': { 'class': 'form-label fw-bold' } }) }}
+                            {{ form_widget(create_checkpoint_forms[road_trip.id].images, { 'attr': { 'class': 'form-control', 'multiple': 'multiple' } }) }}
+                            <small class="text-muted">You can upload multiple images (JPEG, PNG, WEBP).</small>
                         </div>
                         <div class="d-flex justify-content-end mt-3">
                             <button type="submit" class="btn btn-primary me-2">Save</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         </div>
                         {{ form_end(create_checkpoint_forms[road_trip.id]) }}
                     </div>
                 </div>
             </div>
         </div>
+        {% for checkpoint in road_trip.checkpoints %}
+            <div class="modal fade" id="editCheckpointModal-{{ checkpoint.id }}" tabindex="-1" aria-labelledby="editCheckpointModalLabel-{{ checkpoint.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editCheckpointModalLabel-{{ checkpoint.id }}">Edit Checkpoint</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            {{ form_start(edit_checkpoint_forms[checkpoint.id], { 'attr': { 'id': 'edit-checkpoint-form-' ~ checkpoint.id } }) }}
+                            <div class="mb-3">
+                                {{ form_label(edit_checkpoint_forms[checkpoint.id].name, 'Name', { 'label_attr': { 'class': 'form-label fw-bold' } }) }}
+                                {{ form_widget(edit_checkpoint_forms[checkpoint.id].name, { 'attr': { 'class': 'form-control' } }) }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form_label(edit_checkpoint_forms[checkpoint.id].latitude, 'Latitude', { 'label_attr': { 'class': 'form-label fw-bold' } }) }}
+                                {{ form_widget(edit_checkpoint_forms[checkpoint.id].latitude, { 'attr': { 'class': 'form-control' } }) }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form_label(edit_checkpoint_forms[checkpoint.id].longitude, 'Longitude', { 'label_attr': { 'class': 'form-label fw-bold' } }) }}
+                                {{ form_widget(edit_checkpoint_forms[checkpoint.id].longitude, { 'attr': { 'class': 'form-control' } }) }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Current Images</label>
+                                {% if checkpoint.images|length > 0 %}
+                                    <div id="carouselEditCheckpointImages-{{ checkpoint.id }}" class="carousel slide mb-3" data-bs-ride="carousel">
+                                        <div class="carousel-inner">
+                                            {% for image in checkpoint.images %}
+                                                <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                                    <img src="{{ asset('uploads/checkpoints/' ~ image.path) }}" class="d-block w-100" alt="Checkpoint Image {{ loop.index }}">
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselEditCheckpointImages-{{ checkpoint.id }}" data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Previous</span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button" data-bs-target="#carouselEditCheckpointImages-{{ checkpoint.id }}" data-bs-slide="next">
+                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Next</span>
+                                        </button>
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted">No images available for this checkpoint.</p>
+                                {% endif %}
+                            </div>
+                            <div class="mb-3">
+                                {{ form_label(edit_checkpoint_forms[checkpoint.id].images, 'Upload New Images', { 'label_attr': { 'class': 'form-label fw-bold' } }) }}
+                                {{ form_widget(edit_checkpoint_forms[checkpoint.id].images, { 'attr': { 'class': 'form-control', 'multiple': 'multiple' } }) }}
+                                <small class="text-muted">You can upload additional images (JPEG, PNG, WEBP).</small>
+                            </div>
+                            <div class="d-flex justify-content-end mt-3">
+                                <button type="submit" class="btn btn-primary me-2">Save</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                            {{ form_end(edit_checkpoint_forms[checkpoint.id]) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
     {% endfor %}
     {% for trip in public_road_trips %}
         <!-- Modal pour afficher les détails -->
@@ -269,8 +378,8 @@
                     </div>
                     <div class="modal-body">
                         <!-- Image de couverture -->
-                        {% if trip.coverImage %}
-                            <img src="{{ asset('uploads/roadtrips/' ~ trip.coverImage) }}" alt="{{ trip.title }}" class="img-fluid mb-3">
+                        {% if trip.images|length > 0 %}
+                            <img src="{{ asset('uploads/roadtrips/' ~ trip.images[0].path) }}" alt="{{ trip.title }}" class="img-fluid mb-3">
                         {% else %}
                             <img src="{{ asset('img/placeholder_image.png') }}" alt="Placeholder" class="img-fluid mb-3">
                         {% endif %}
@@ -282,6 +391,11 @@
                         <h6>Checkpoints :</h6>
                         <ul>
                             {% for checkpoint in trip.checkpoints %}
+                                {% if checkpoint.image %}
+                                    <img src="{{ asset('uploads/checkpoints/' ~ checkpoint.image) }}" alt="{{ checkpoint.name }}" class="img-fluid">
+                                {% else %}
+                                    <p>No image available for this checkpoint.</p>
+                                {% endif %}
                                 <li>
                                     <strong>{{ checkpoint.name }}</strong>
                                 </li>

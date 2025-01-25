@@ -10,6 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\File;
 
 class RoadTripType extends AbstractType
@@ -26,21 +27,22 @@ class RoadTripType extends AbstractType
                 'attr' => ['class' => 'form-control', 'rows' => 4, 'placeholder' => 'Describe your trip...'],
                 'required' => false,
             ])
-            ->add('coverImage', FileType::class, [
-                'label' => 'Cover Image',
+            ->add('images', FileType::class, [
+                'label' => 'Add Images (JPEG, PNG, WEBP)',
                 'mapped' => false,
                 'required' => false,
+                'multiple' => true,
                 'constraints' => [
-                    new File([
-                        'maxSize' => '2M',
-                        'mimeTypes' => [
-                            'image/jpeg',
-                            'image/png',
-                            'image/webp',
-                        ],
-                        'mimeTypesMessage' => 'Please upload a valid image (JPEG/PNG)',
-                    ]),
-                ],
+                    new All([
+                        'constraints' => [
+                            new File([
+                                'maxSize' => '1024k',
+                                'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],
+                                'mimeTypesMessage' => 'Please upload a valid image file.(JPG, PNG, WEBP)',
+                            ])
+                        ]
+                    ])
+                ]
             ])
             ->add('visibility', ChoiceType::class, [
                 'label' => 'Visibility',

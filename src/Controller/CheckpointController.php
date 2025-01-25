@@ -3,10 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\Checkpoint;
+use App\Entity\Image;
 use App\Entity\RoadTrip;
 use App\Form\CheckpointType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,6 +22,7 @@ class CheckpointController extends AbstractController
         Checkpoint $checkpoint,
         EntityManagerInterface $entityManager
     ): Response {
+        // Vérification de l'autorisation
         if ($checkpoint->getRoadTrip()->getOwner() !== $this->getUser()) {
             throw $this->createAccessDeniedException('You cannot edit this checkpoint.');
         }
@@ -28,6 +31,19 @@ class CheckpointController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $images = $form->get('images')->getData();
+
+            foreach ($images as $imageFile) {
+                $image = new Image();
+                $image->setPath('uploads/checkpoints/'. uniqid() . '.' . $imageFile->guessExtension());
+                $image->setType('checkpoint');
+                $image->setCheckpoint($checkpoint);
+
+                $imageFile->move('uploads/checkpoints/', $image->getPath());
+
+                $entityManager->persist($image);
+            }
+
             $entityManager->flush();
             return $this->redirectToRoute('app_profile');
         }
@@ -37,7 +53,7 @@ class CheckpointController extends AbstractController
         ]);
     }
 
-    #[Route('/new/{roadTripId}', name: 'app_checkpoint_new', methods: ['POST'])]
+    #[Route('/new/{roadTripId}', name: 'app_checkpoint_new', methods: ['GET', 'POST'])]
     public function new(
         Request $request,
         int $roadTripId,
@@ -56,6 +72,20 @@ class CheckpointController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $images = $form->get('images')->getData();
+
+            foreach ($images as $imageFile) {
+                $image = new Image();
+                $image->setPath('uploads/checkpoints/'. uniqid() . '.' . $imageFile->guessExtension());
+                $image->setType('checkpoint');
+                $image->setCheckpoint($checkpoint);
+
+                $imageFile->move('uploads/checkpoints/', $image->getPath());
+
+                $entityManager->persist($image);
+            }
+
             $entityManager->persist($checkpoint);
             $entityManager->flush();
             return $this->redirectToRoute('app_profile');
@@ -77,6 +107,14 @@ class CheckpointController extends AbstractController
         }
 
         if ($this->isCsrfTokenValid('delete' . $checkpoint->getId(), $request->request->get('_token'))) {
+            // Supprime le fichier image associé
+            if ($checkpoint->getImage()) {
+                $imagePath = $this->getParameter('checkpoint_images_directory') . '/' . $checkpoint->getImage();
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
+            }
+
             $entityManager->remove($checkpoint);
             $entityManager->flush();
         }

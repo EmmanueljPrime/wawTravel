@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Image;
 use App\Entity\RoadTrip;
 use App\Form\RoadTripType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -11,7 +12,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/road/trip')]
@@ -29,8 +29,12 @@ final class RoadTripController extends AbstractController
     }
 
     #[Route('/new', name: 'app_road_trip_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, Security $security,SluggerInterface $slugger ): Response
-    {
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        Security $security,
+        SluggerInterface $slugger
+    ): Response {
         $roadTrip = new RoadTrip();
         $roadTrip->setOwner($security->getUser());
 
@@ -38,32 +42,39 @@ final class RoadTripController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Gestion des images téléchargées
+            $images = $form->get('images')->getData();
 
-            $coverImageFile = $form->get('coverImage')->getData();
+            dump($images);
 
-            if ($coverImageFile) {
-                $originalFilename = pathinfo($coverImageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $coverImageFile->guessExtension();
+            if ($images) {
+                foreach ($images as $imageFile) {
+                    // Générer un nom de fichier unique
+                    $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                    $safeFilename = $slugger->slug($originalFilename);
+                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
 
-                try {
-                    $coverImageFile->move(
-                        $this->getParameter('uploads_directory'), // Répertoire défini dans services.yaml
+                    // Déplacer le fichier dans le répertoire des uploads
+                    $imageFile->move(
+                        $this->getParameter('uploads_directory') . '/roadtrips',
                         $newFilename
                     );
-                } catch (FileException $e) {
-                    // Gérer les erreurs d'upload
-                    throw new \Exception('File upload failed.');
-                }
 
-                // Enregistrer le nom du fichier dans l'entité
-                $roadTrip->setCoverImage($newFilename);
+                    // Créer l'entité Image et l'associer au RoadTrip
+                    $image = new Image();
+                    $image->setPath('uploads/roadtrips/' .$newFilename);
+                    $image->setType('roadtrip');
+
+                    $image->setRoadTrip($roadTrip);
+
+                    $entityManager->persist($image);
+                }
             }
 
             $entityManager->persist($roadTrip);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_road_trip_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_profile', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('road_trip/new.html.twig', [
@@ -95,48 +106,31 @@ final class RoadTripController extends AbstractController
             throw $this->createAccessDeniedException('You cannot edit this road trip.');
         }
 
-        // Associe le formulaire au voyage existant
+        // Crée le formulaire associé au RoadTrip
         $form = $this->createForm(RoadTripType::class, $roadTrip, [
             'action' => $this->generateUrl('app_road_trip_edit', ['id' => $roadTrip->getId()]),
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Gestion de l'upload de l'image
-            /** @var UploadedFile $coverImageFile */
-            $coverImageFile = $form->get('coverImage')->getData();
+            $images = $form->get('images')->getData();
 
-            if ($coverImageFile) {
-                // Générer un nom de fichier unique
-                $originalFilename = pathinfo($coverImageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $coverImageFile->guessExtension();
+            foreach ($images as $imageFile) {
+                $image = new Image();
+                $image->setPath('uploads/roadtrips/'. uniqid() . '.' . $imageFile->guessExtension());
+                $image->setType('roadtrip');
+                $image->setRoadTrip($roadTrip);
 
-                // Déplacer l'image dans le répertoire configuré
-                try {
-                    $coverImageFile->move(
-                        $this->getParameter('uploads_directory'),
-                        $newFilename
-                    );
-                } catch (FileException $e) {
-                    throw new \Exception('An error occurred while uploading the file.');
-                }
+                $imageFile->move('uploads/roadtrips/', $image->getPath());
 
-                // Supprimer l'ancienne image si elle existe
-                if ($roadTrip->getCoverImage()) {
-                    $oldImagePath = $this->getParameter('uploads_directory') . '/' . $roadTrip->getCoverImage();
-                    if (file_exists($oldImagePath)) {
-                        unlink($oldImagePath);
-                    }
-                }
-
-                // Mettre à jour le champ coverImage avec le nouveau fichier
-                $roadTrip->setCoverImage($newFilename);
+                $entityManager->persist($image);
             }
 
-            // Sauvegarde des modifications
+
+            // Sauvegarde les modifications du RoadTrip
             $entityManager->flush();
 
+            // Redirige l'utilisateur après l'enregistrement
             return $this->redirectToRoute('app_profile');
         }
 

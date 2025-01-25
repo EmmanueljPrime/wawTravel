@@ -31,14 +31,6 @@ class RoadTrip
     )]
     private ?string $description = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\File(
-        maxSize: '200k',
-        mimeTypes: ['image/jpeg', 'image/png'],
-        mimeTypesMessage: 'Please upload a valid image (JPEG or PNG).'
-    )]
-    private ?string $coverImage = null;
-
     #[ORM\ManyToOne(inversedBy: 'roadTrips')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $owner = null;
@@ -61,9 +53,16 @@ class RoadTrip
     )]
     private ?string $visibility = 'private';
 
+    /**
+     * @var Collection<int, Image>
+     */
+    #[ORM\OneToMany(targetEntity: Image::class, mappedBy: 'roadTrip')]
+    private Collection $images;
+
     public function __construct()
     {
         $this->checkpoints = new ArrayCollection();
+        $this->images = new ArrayCollection();
     }
 
     // Getters and Setters
@@ -92,18 +91,6 @@ class RoadTrip
     public function setDescription(?string $description): static
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    public function getCoverImage(): ?string
-    {
-        return $this->coverImage;
-    }
-
-    public function setCoverImage(?string $coverImage): static
-    {
-        $this->coverImage = $coverImage;
 
         return $this;
     }
@@ -157,6 +144,36 @@ class RoadTrip
     public function setVisibility(string $visibility): static
     {
         $this->visibility = $visibility;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Image>
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(Image $image): static
+    {
+        if (!$this->images->contains($image)) {
+            $this->images->add($image);
+            $image->setRoadTrip($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImage(Image $image): static
+    {
+        if ($this->images->removeElement($image)) {
+            // set the owning side to null (unless already changed)
+            if ($image->getRoadTrip() === $this) {
+                $image->setRoadTrip(null);
+            }
+        }
 
         return $this;
     }

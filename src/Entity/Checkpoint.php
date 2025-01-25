@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\CheckpointRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -32,6 +34,17 @@ class Checkpoint
     #[ORM\ManyToOne(inversedBy: 'checkpoints')]
     #[ORM\JoinColumn(nullable: false)]
     private ?RoadTrip $roadTrip = null;
+
+    /**
+     * @var Collection<int, Image>
+     */
+    #[ORM\OneToMany(targetEntity: Image::class, mappedBy: 'checkpoint')]
+    private Collection $images;
+
+    public function __construct()
+    {
+        $this->images = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -106,6 +119,36 @@ class Checkpoint
     public function setRoadTrip(?RoadTrip $roadTrip): static
     {
         $this->roadTrip = $roadTrip;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Image>
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(Image $image): static
+    {
+        if (!$this->images->contains($image)) {
+            $this->images->add($image);
+            $image->setCheckpoint($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImage(Image $image): static
+    {
+        if ($this->images->removeElement($image)) {
+            // set the owning side to null (unless already changed)
+            if ($image->getCheckpoint() === $this) {
+                $image->setCheckpoint(null);
+            }
+        }
 
         return $this;
     }
