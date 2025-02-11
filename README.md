@@ -33,7 +33,9 @@ php bin/console doctrine:database:create
 mysql -u root -p wawTravel < wawTravelData.sql
 php bin/console doctrine:migrations:migrate
 ```
-wawTravelData.sql est le dump de la base de donnée avec quelque données pré-chargé qui se trouve a la racine du projet
+
+wawTravelData.sql est le dump de la base de donnée avec quelque données pré-chargé qui se trouve a la racine du projet :
+
 ---
 
 ## ✅ Lancer le serveur Symfony
