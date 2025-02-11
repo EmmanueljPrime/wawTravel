@@ -3,11 +3,10 @@
 ## 📌 Prérequis
 Avant de commencer, assurez-vous d'avoir installé :
 
-- **PHP 8.1+** (vérifiez avec `php -v`)
+- **PHP** (vérifiez avec `php -v`)
 - **Composer** (vérifiez avec `composer -V`)
-- **MySQL 8+** (ou MariaDB compatible, vérifiez avec `mysql --version`)
+- **MySQL** (ou MariaDB compatible, vérifiez avec `mysql --version`)
 - **Symfony CLI** (optionnel mais recommandé, vérifiez avec `symfony -v`)
-- **Node.js et npm** (si le projet utilise des assets front-end)
 
 ---
 
