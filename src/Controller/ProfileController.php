@@ -94,6 +94,25 @@ class ProfileController extends AbstractController
             }
         }
 
+        $checkpointsData = [];
+
+        foreach ($roadTrips as $roadTrip) {
+            $tripCheckpoints = [];
+
+            foreach ($roadTrip->getCheckpoints() as $checkpoint) {
+                $tripCheckpoints[] = [
+                    'name' => $checkpoint->getName(),
+                    'latitude' => $checkpoint->getLatitude(),
+                    'longitude' => $checkpoint->getLongitude(),
+                ];
+            }
+
+            $checkpointsData[] = [
+                'roadTripTitle' => $roadTrip->getTitle(),
+                'checkpoints' => $tripCheckpoints
+            ];
+        }
+
         return $this->render('profile/index.html.twig', [
             'user' => $user,
             'road_trips' => $roadTrips,
@@ -102,6 +121,7 @@ class ProfileController extends AbstractController
             'edit_forms' => $editForms,
             'create_checkpoint_forms' => $createCheckpointForms,
             'edit_checkpoint_forms' => $editCheckpointForms,
+            'checkpointsData' => json_encode($checkpointsData),
         ]);
     }
 

@@ -45,8 +45,6 @@ final class RoadTripController extends AbstractController
             // Gestion des images téléchargées
             $images = $form->get('images')->getData();
 
-            dump($images);
-
             if ($images) {
                 foreach ($images as $imageFile) {
                     // Générer un nom de fichier unique

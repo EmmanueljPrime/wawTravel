@@ -36,7 +36,7 @@ class RoadTripType extends AbstractType
                     new All([
                         'constraints' => [
                             new File([
-                                'maxSize' => '1024k',
+                                'maxSize' => '10M',
                                 'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],
                                 'mimeTypesMessage' => 'Please upload a valid image file.(JPG, PNG, WEBP)',
                             ])

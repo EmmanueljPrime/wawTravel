@@ -2,6 +2,11 @@
 
 {% block title %}Waw.travel{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
+{% endblock %}
+
 {% block javascripts %}
     <script src="{{ asset('js/search.js') }}" defer></script>
 {% endblock %}
@@ -10,9 +15,9 @@
     <div class="landing-page">
 
         <!-- Hero Section -->
-        <div class="container-fluid hero-section text-center text-white d-flex align-items-center justify-content-center" style="background-image: url('{{ asset('img/mountain_landing.webp') }}'); background-size: cover; background-position: center; height: 100vh;">
-            <div class="hero-content">
-                <h1 class="display-4 fw-bold mb-4">Share Your Trip And Adventure With Friends</h1>
+        <div class="container-fluid hero-section text-center text-white d-flex align-items-center justify-content-center position-relative" style="background-image: url('{{ asset('img/mountain_landing.webp') }}'); background-size: cover; background-position: center; height: 100vh;">
+            <div class="hero-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5);"></div>
+            <div class="hero-content" style="z-index: 100;">
                 <div class="search-bar mb-4">
                     <div class="input-group">
                         <input type="text" id="searchInput" class="form-control" placeholder="Search..." aria-label="Search" />
@@ -21,12 +26,13 @@
                         </button>
                     </div>
                 </div>
-                <a href="/signup" class="btn btn-primary btn-lg">Sign Up</a>
+                <h1 class="display-4 fw-bold mb-4" style="text-align: start">Share Your<br>Trip And Adventure<br>With Friends</h1>
+                <div class="d-flex"><a href="/signup" class="btn btn-primary btn-lg">Sign Up</a></div>
             </div>
         </div>
 
         <!-- Social Links -->
-        <div class="container-fluid social-links text-center py-3">
+        <div class="container-fluid social-links py-3">
             <a href="#" class="mx-3"><i class="fab fa-facebook fs-4"></i></a>
             <a href="#" class="mx-3"><i class="fab fa-instagram fs-4"></i></a>
             <a href="#" class="mx-3"><i class="fa-brands fa-x-twitter fs-4"></i></a>

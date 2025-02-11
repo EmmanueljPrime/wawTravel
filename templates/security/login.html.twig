@@ -3,38 +3,61 @@
 {% block title %}Log in!{% endblock %}
 
 {% block body %}
-    <form method="post">
-        {% if error %}
-            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-        {% endif %}
+    <div class="container-fluid hero-section text-center text-white d-flex align-items-center justify-content-center position-relative" style="background-image: url('{{ asset('img/mountain_landing.webp') }}'); background-size: cover; background-position: center; height: 100vh;">
 
-        {% if app.user %}
-            <div class="mb-3">
-                You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+        <!-- Overlay pour le flou de l'arrière-plan -->
+        <div class="hero-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(5px);"></div>
+
+        <div class="d-flex justify-content-center align-items-center" style="width: 80%; max-width: 1200px; position: relative; z-index: 10;">
+
+            <!-- Compartiment flouté avec le texte d'introduction -->
+            <div class="info-box p-4 text-white d-flex" style="flex: 1; background: rgba(255, 255, 255, 0.1); border-radius: 15px; backdrop-filter: blur(10px); padding: 40px; text-align: left;">
+                <div class="login-box p-5 text-dark" style="flex: 1; max-width: 400px; background: #FFFFFF; border-radius: 15px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);">
+                    <h2 class="fw-bold mb-4">Sign in</h2>
+                    <form method="post">
+                        {% if error %}
+                            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                        {% endif %}
+
+                        {% if app.user %}
+                            <div class="mb-3">
+                                You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Email</label>
+                            <input type="email" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="email" required autofocus>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required>
+                        </div>
+
+                        <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="remember_me" name="_remember_me">
+                            <label class="form-check-label" for="remember_me">Remember me</label>
+                        </div>
+
+                        <button class="btn btn-primary w-100" type="submit">Sign in</button>
+
+                        <div class="mt-3 text-center">
+                            <small>Don't have an account? <a href="/register" class="text-primary">Sign up</a></small>
+                        </div>
+                    </form>
+                </div>
+                <div class="" style="margin: 0 auto;">
+                    <h2 class="fw-bold mb-3" style="font-size: 2.5em">Create Trip</h2>
+                    <h4 class="fw-bold mb-3" style="font-size: 2.5em">Share Your Trip </h4>
+                    <h4 class="fw-bold mb-3" style="font-size: 2.5em">Trip With Your Friends</h4>
+                </div>
+
             </div>
-        {% endif %}
-
-        <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-        <label for="username">Email</label>
-        <input type="email" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="email" required autofocus>
-        <label for="password">Password</label>
-        <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required>
 
 
-        <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
 
-        {#
-            Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
-            See https://symfony.com/doc/current/security/remember_me.html
-
-            <div class="checkbox mb-3">
-                <input type="checkbox" name="_remember_me" id="_remember_me">
-                <label for="_remember_me">Remember me</label>
-            </div>
-        #}
-
-        <button class="btn btn-lg btn-primary" type="submit">
-            Sign in
-        </button>
-    </form>
+        </div>
+    </div>
 {% endblock %}

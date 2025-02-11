@@ -3,20 +3,70 @@
 {% block title %}Register{% endblock %}
 
 {% block body %}
-    <h1>Register</h1>
+    <div class="container-fluid hero-section text-center text-white d-flex align-items-center justify-content-center position-relative"
+         style="background-image: url('{{ asset('img/mountain_landing.webp') }}'); background-size: cover; background-position: center; height: 100vh;">
 
-    {{ form_errors(registrationForm) }}
+        <!-- Overlay pour le flou de l'arrière-plan -->
+        <div class="hero-overlay"
+             style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(5px);">
+        </div>
 
-    {{ form_start(registrationForm) }}
-    {{ form_row(registrationForm.firstName) }}
-    {{ form_row(registrationForm.lastName) }}
-    {{ form_row(registrationForm.username) }}
-        {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
-        }) }}
-        {{ form_row(registrationForm.agreeTerms) }}
+        <div class="d-flex justify-content-center align-items-center"
+             style="position: relative; z-index: 10;">
 
-        <button type="submit" class="btn">Register</button>
-    {{ form_end(registrationForm) }}
+            <!-- Compartiment flouté avec le texte d'introduction -->
+            <div class="info-box p-4 text-white d-flex"
+                 style="flex: 1; background: rgba(255, 255, 255, 0.1); border-radius: 15px; backdrop-filter: blur(10px); padding: 40px; text-align: left;">
+
+                <!-- Boîte contenant le formulaire -->
+                <div class="register-box p-5 text-dark"
+                     style="width: 50vw ;flex: 1; min-width: 350px; background: #FFFFFF; border-radius: 15px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);">
+
+                    <h2 class="fw-bold mb-4">Sign Up</h2>
+
+                    {{ form_start(registrationForm) }}
+
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.firstName, 'First Name', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(registrationForm.firstName, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.lastName, 'Last Name', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(registrationForm.lastName, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.username, 'Username', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(registrationForm.username, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.email, 'Email', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.plainPassword, 'Password', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
+                        {{ form_label(registrationForm.agreeTerms, 'I agree to the terms', {'label_attr': {'class': 'form-check-label'}}) }}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Register</button>
+
+                    <div class="mt-3 text-center">
+                        <small>Already have an account? <a href="/login" class="text-primary">Sign in</a></small>
+                    </div>
+
+                    {{ form_end(registrationForm) }}
+                </div>
+
+
+            </div>
+        </div>
+    </div>
 {% endblock %}

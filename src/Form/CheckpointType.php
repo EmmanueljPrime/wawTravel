@@ -7,6 +7,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\File;
 
 class CheckpointType extends AbstractType
@@ -37,11 +38,15 @@ class CheckpointType extends AbstractType
                 'required' => false,
                 'multiple' => true,
                 'constraints' => [
-                    new File([
-                        'maxSize' => '1024k',
-                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],
-                        'mimeTypesMessage' => 'Please upload a valid image file. (JPG, PNG, WEBP)',
-                    ]),
+                    new All([
+                        'constraints' => [
+                            new File([
+                                'maxSize' => '10M',
+                                'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],
+                                'mimeTypesMessage' => 'Please upload a valid image file.(JPG, PNG, WEBP)',
+                            ])
+                        ]
+                    ])
                 ],
                 'attr' => ['class' => 'form-control-file'],
             ]);
